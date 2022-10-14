@@ -10,7 +10,8 @@ task javadocs(type: Javadoc) {
 
 afterEvaluate {
     javadocs.classpath += files(android.libraryVariants.collect { variant ->
-        variant.javaCompileProvider.get().classpath.files
+        //noinspection GroovyUntypedAccess
+        variant.javaCompile.classpath.files
     })
 }
 
@@ -40,11 +41,9 @@ task zipRelease(type: Zip) {
     archiveName "release-${project.PUBLISH_VERSION}.zip"
 }
 
-task generateLibraryRelease {
-    doLast {
-        println "Release ${project.PUBLISH_VERSION} can be found at ${localReleaseDest}/"
-        println "Release ${project.PUBLISH_VERSION} zipped can be found ${buildDir}/release-${project.PUBLISH_VERSION}.zip"
-    }
+task generateLibraryRelease << {
+    println "Release ${project.PUBLISH_VERSION} can be found at ${localReleaseDest}/"
+    println "Release ${project.PUBLISH_VERSION} zipped can be found ${buildDir}/release-${project.PUBLISH_VERSION}.zip"
 }
 
 generateLibraryRelease.dependsOn(uploadArchives)
