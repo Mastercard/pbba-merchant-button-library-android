@@ -4,10 +4,10 @@
     <string name="pbba_button_font">@string/pbba_popup_semibold_font</string>
 
     <!-- Font configuration for Pay by Bank app popups -->
-    <string name="pbba_popup_regular_font">fonts/MarkForMC.ttf</string>
-    <string name="pbba_popup_semibold_font">fonts/MarkForMC-Med.ttf</string>
-    <string name="pbba_popup_bold_font">fonts/MarkForMC-Bold.ttf</string>
-    <string name="pbba_popup_heavy_font">fonts/MarkForMC-Heavy.ttf</string>
+    <string name="pbba_popup_regular_font">fonts/OpenSans-Regular.ttf</string>
+    <string name="pbba_popup_semibold_font">fonts/OpenSans-Medium.ttf</string>
+    <string name="pbba_popup_bold_font">fonts/OpenSans-Bold.ttf</string>
+    <string name="pbba_popup_heavy_font">fonts/OpenSans-ExtraBold.ttf</string>
 
     <!-- Pay by Bank app button texts -->
     <string name="pbba_button_text_open_banking_app">Open banking app</string>
