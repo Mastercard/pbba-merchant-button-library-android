@@ -1,5 +1,6 @@
 // ./gradlew clean build :zapp-merchant-library:generateLibraryRelease
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 def localReleaseDest = "${buildDir}/release/${version}"
 
@@ -11,17 +12,81 @@ task javadocs(type: Javadoc) {
 afterEvaluate {
     javadocs.classpath += files(android.libraryVariants.collect { variant ->
         //noinspection GroovyUntypedAccess
-        variant.javaCompile.classpath.files
+        //variant.javaCompile.classpath.files
+        variant.javaCompileProvider.get().classpath.files
     })
+
+    publishing {
+        publications {
+            library(MavenPublication) {
+                groupId project.PUBLISH_GROUP_ID
+                artifactId project.PUBLISH_ARTIFACT_ID
+                version project.PUBLISH_VERSION
+                artifact sourcesJar
+                artifact bundleReleaseAar
+
+                pom {
+                    name = 'PbBa Merchant Button Library - Android'
+                    description = 'The Pay by Bank app Merchant Library for Android makes it easy for you to add Pay by Bank app as a new payment method.'
+
+                    url = 'https://github.com/Mastercard/pbba-merchant-button-library-android'
+                    organization {
+                        name = 'Mastercard Zapp'
+                        url = 'https://mastercard.com'
+                    }
+                    licenses {
+                        license {
+                            name = 'The MIT License (MIT)'
+                            url = 'http://www.opensource.org/licenses/mit-license.php'
+                        }
+                    }
+                    developers {
+                        developer {
+                            name = 'Mastercard Zapp'
+                        }
+                    }
+                    scm {
+                        url = 'https://github.com/Mastercard/pbba-merchant-button-library-android'
+                        connection = 'scm:git:git://github.com:Mastercard/pbba-merchant-button-library-android.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:Mastercard/pbba-merchant-button-library-android.git'
+                    }
+
+                    withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+
+                        project.configurations.implementation.allDependencies.each {
+                            if (it.name != 'unspecified') {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', it.group)
+                                dependencyNode.appendNode('artifactId', it.name)
+                                dependencyNode.appendNode('version', it.version)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Mastercard/merchant-button-lib-test")
+                credentials {
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
+                }
+            }
+        }
+    }
 }
 
 task javadocsJar(type: Jar, dependsOn: javadocs) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from javadocs.destinationDir
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
 }
 
@@ -41,9 +106,11 @@ task zipRelease(type: Zip) {
     archiveName "release-${project.PUBLISH_VERSION}.zip"
 }
 
-task generateLibraryRelease << {
-    println "Release ${project.PUBLISH_VERSION} can be found at ${localReleaseDest}/"
-    println "Release ${project.PUBLISH_VERSION} zipped can be found ${buildDir}/release-${project.PUBLISH_VERSION}.zip"
+task generateLibraryRelease {
+    doLast {
+        println "Release ${project.PUBLISH_VERSION} can be found at ${localReleaseDest}/"
+        println "Release ${project.PUBLISH_VERSION} zipped can be found ${buildDir}/release-${project.PUBLISH_VERSION}.zip"
+    }
 }
 
 generateLibraryRelease.dependsOn(uploadArchives)
